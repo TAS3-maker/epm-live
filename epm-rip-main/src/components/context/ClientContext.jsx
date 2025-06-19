@@ -27,7 +27,6 @@ export const ClientProvider = ({ children }) => {
             client_type: clienttype,
             name,
             contact_detail: contactDetail,
-            // Add communication and projectType to clientData
             communication: communication,
             project_type: projectType
         };
@@ -49,17 +48,28 @@ export const ClientProvider = ({ children }) => {
         });
 
         if (handleUnauthorized(response)) return;
+
         const data = await response.json();
 
         if (response.ok) {
             showAlert({ variant: "success", title: "Success", message: "Client added successfully!" });
             fetchClients();
+            return { success: true }; // Indicate success to the component
         } else {
-            showAlert({ variant: "error", title: "Error", message: data.message });
+            // Check if the response is a validation error (HTTP 422)
+            if (response.status === 422 && data.errors) {
+                // Return the backend errors to the component
+                return { success: false, errors: data.errors };
+            } else {
+                // For other types of errors, show a general alert
+                showAlert({ variant: "error", title: "Error", message: data.message || "An error occurred." });
+                return { success: false, errors: {} }; // Return empty errors for non-validation errors
+            }
         }
     } catch (error) {
-        console.error("Error adding client:", error); // Log the actual error for debugging
+        console.error("Error adding client:", error);
         showAlert({ variant: "error", title: "Error", message: "An error occurred. Please try again." });
+        return { success: false, errors: {} };
     } finally {
         setIsLoading(false);
     }

@@ -26,7 +26,7 @@ export const Activitytable = () => {
     getActivityTags, 
     activityTags, 
     loading, 
-    message, // General message from context (less used for field-specific errors)
+    message,
     updateActivityTag, 
     deleteTagActivity,
     validationErrors,     // <-- This holds backend field-specific errors
@@ -34,9 +34,8 @@ export const Activitytable = () => {
   } = useActivity();
 
   useEffect(() => {
-    // Fetch activity tags on component mount
     getActivityTags();
-  }, [getActivityTags]); // Add getActivityTags to dependency array to satisfy ESLint,
+  }, []); 
                          // though it's stable from context.
 
   // Function to handle entering edit mode

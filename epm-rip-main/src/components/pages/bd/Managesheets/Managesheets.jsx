@@ -259,7 +259,8 @@ export const Managesheets = () => {
           )}
 
           <ExportButton onClick={() => exportToExcel(filteredData, "sheet.xlsx")} />
-          <ImportButton onClick={() => alert("Handle import logic here")} />
+          {/* <ImportButton onClick={() => alert("Handle import logic here")} /> */}
+          <ImportButton />
         </div>
       </div>
 

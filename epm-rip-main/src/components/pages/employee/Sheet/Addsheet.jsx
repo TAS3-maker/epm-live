@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Briefcase, ClipboardList, Home, FileText, Save, Trash2, Edit } from 'lucide-react';
+import { Clock, Briefcase, ClipboardList, Home, FileText, Save, Trash2, Edit,Calendar } from 'lucide-react';
 import { useUserContext } from "../../../context/UserContext";
 import { SectionHeader } from '../../../components/SectionHeader';
 import { useAlert } from "../../../context/AlertContext";
@@ -22,6 +22,7 @@ const Addsheet = () => {
   // console.log("projects mounted", userProjects);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split("T")[0],
+    // date: "",
     projectId: "",
     hoursSpent: "",
     billingStatus: "",
@@ -156,7 +157,8 @@ const Addsheet = () => {
     console.log("After saving - savedEntries:", [...savedEntries, newEntry]);
 
     setFormData({
-      date: new Date().toISOString().split("T")[0],
+      // date: new Date().toISOString().split("T")[0],
+      date: "",
       projectId: "",
       hoursSpent: "",
       billingStatus: "",
@@ -226,23 +228,10 @@ const Addsheet = () => {
       <div className=" min-h-screen min-w-full overflow-hidden">
         {/* Date Section */}
         <SectionHeader icon={ClipboardList} title="Daily Timesheet" subtitle="Employee Daily Timesheet" />
-        <div className="flex items-start justify-between">
-          {/* <div><h2 className="text-4xl font-bold text-gray-800">Daily Timesheet</h2></div> */}
-          {/* <div className="relative">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                Date
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={formData.date}
-                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed focus:outline-none"
-                readOnly
-              />
-            </div> */}
-        </div>
+        {/* <div className="flex items-start justify-between">
+          <div><h2 className="text-4xl font-bold text-gray-800">Daily Timesheet</h2></div>
+          
+        </div> */}
         {/* Timesheet Form */}
         <div className="p-3 ml-0 border min-w-full sm:min-w-[600px] rounded-lg shadow-xl mb-5 lg:mb-0">
           <div className="flex items-center justify-center mb-6">
@@ -253,6 +242,21 @@ const Addsheet = () => {
           <form className="space-y-6">
             {/* Project and Time Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="relative">
+                <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                  Date
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })} // Corrected line
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700 focus:outline-none"
+                  // readOnly
+                />
+              </div>
               <div className="relative">
                 <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <Briefcase className="w-4 h-4 mr-2 text-gray-400" />
@@ -277,7 +281,8 @@ const Addsheet = () => {
                   )}
                 </select>
               </div>
-
+            </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="relative">
                 <label htmlFor="hoursSpent" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <Clock className="w-4 h-4 mr-2 text-gray-400" />
@@ -320,9 +325,6 @@ const Addsheet = () => {
                   }}
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="relative">
                 <label htmlFor="billingStatus" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <ClipboardList className="w-4 h-4 mr-2 text-gray-400" />
@@ -346,7 +348,9 @@ const Addsheet = () => {
                   )}
                 </select>
               </div>
+             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="relative">
                 <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <Home className="w-4 h-4 mr-2 text-gray-400" />
@@ -364,9 +368,6 @@ const Addsheet = () => {
                   <option value="WFH">Work from Home</option>
                 </select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="relative">
                 <label htmlFor="project_type" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <ClipboardList className="w-4 h-4 mr-2 text-gray-400" />
@@ -384,9 +385,10 @@ const Addsheet = () => {
                   <option value="Fixed">Fixed</option>
                 </select>
               </div>
+            </div>
 
-
-              <div className="relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="relative col-span-2">
                 <label htmlFor="project_type_status" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <Home className="w-4 h-4 mr-2 text-gray-400" />
                   Project Type Status
@@ -404,8 +406,8 @@ const Addsheet = () => {
                 </select>
 
               </div>
-
             </div>
+
             <div className="relative">
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <FileText className="w-4 h-4 mr-2 text-gray-400" />

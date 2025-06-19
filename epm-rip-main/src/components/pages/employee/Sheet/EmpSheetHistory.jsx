@@ -49,7 +49,6 @@ export const EmpSheetHistory = () => {
     }
   }, [editingRow, sheets, userProjects]);
 
-
   const handleEditClick = (index, sheet) => {
     setEditingRow(index);
     // When entering edit mode, set editedData.activity_type to the ID
@@ -74,7 +73,6 @@ export const EmpSheetHistory = () => {
       }
     }
   };
-
 
   const handleChange = (e, field) => {
     let value = e.target.value;
@@ -101,6 +99,17 @@ export const EmpSheetHistory = () => {
     setEditedData((prevData) => ({ ...prevData, [field]: value }));
   };
 
+  const ActivityTypeStatus = (ActivityType) => {
+     const activitytype = (ActivityType || "").toLowerCase();
+    switch(activitytype){
+      case "billable" :
+        return "bg-green-50 text-green-700 ring-1 ring-green-600/20 px-2 py-1 rounded-full text-xs font-medium ";
+      case "non billable":
+        return "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20 px-2 py-1 rounded-full text-xs font-medium";
+      default:
+        return "bg-blue-50 text-blue-700 ring-1 ring-blue-600/20 px-2 py-1 rounded-full text-xs font-medium"
+    }
+  }
 
   const handleSave = async (editId) => {
     if (!editId) {
@@ -143,12 +152,11 @@ export const EmpSheetHistory = () => {
     }
   };
 
+  // --- Start of fix for toLowerCase error ---
   const getStatusStyles = (status) => {
-    if (!status || typeof status !== "string") {
-      return "bg-gray-50 text-gray-700 ring-1 ring-gray-700/20 hover:bg-gray-100";
-    }
+    // Ensure status is always a string, defaulting to an empty string if null/undefined
+    const safeStatus = (status || "").toLowerCase();
 
-    const safeStatus = String(status).toLowerCase();
     switch (safeStatus) {
       case "rejected":
         return "bg-red-50 text-red-700 ring-1 ring-red-600/20 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1";
@@ -158,16 +166,15 @@ export const EmpSheetHistory = () => {
       case "completed":
         return "bg-green-50 text-green-700 ring-1 ring-green-600/20 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1";
       default:
-        return "bg-gray-50 text-gray-700 ring-1 ring-gray-700/20 hover:bg-gray-100 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1";
-    }
+        // return "bg-gray-50 text-gray-700 ring-1 ring-gray-700/20 hover:bg-gray-100 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1";
+        return "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1";
+      }
   };
 
   const getStatusIcon = (status) => {
-    if (!status || typeof status !== "string") {
-      return <Clock className="h-4 w-4" />;
-    }
+    // Ensure status is always a string, defaulting to an empty string if null/undefined
+    const safeStatus = (status || "").toLowerCase();
 
-    const safeStatus = String(status).toLowerCase();
     switch (safeStatus) {
       case "rejected":
         return <XCircle className="h-4 w-4" />;
@@ -180,7 +187,7 @@ export const EmpSheetHistory = () => {
         return <Clock className="h-4 w-4" />;
     }
   };
-
+  // --- End of fix for toLowerCase error ---
 
   const filteredSheets = sheets.filter((sheet) => {
     const sheetDate = new Date(sheet.date);
@@ -363,7 +370,8 @@ export const EmpSheetHistory = () => {
                           )}
                         </select>
                       ) : (
-                        sheet.activity_type
+                        // (sheet.activity_type)
+                        <span className={ActivityTypeStatus(sheet.activity_type)}>{sheet.activity_type}</span>
                       )}
                     </td>
 
@@ -392,15 +400,13 @@ export const EmpSheetHistory = () => {
                               e.target.value += ":";
                             }
                           }}
-                          // pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" // Ensures HH:MM format (24-hour)
-                          // Relaxed pattern for immediate input, validation can be stricter on save
                         />
                       ) : (
                         sheet.time
                       )}
                     </td>
 
-                   <td className="px-6 py-4 text-nowrap text-center">
+                    <td className="px-6 py-4 text-nowrap text-center">
                       {editingRow === index ? (
                         <select
                           id="project_type"
@@ -414,7 +420,7 @@ export const EmpSheetHistory = () => {
                           <option value="Hourly">Hourly</option>
                         </select>
                       ) : (
-                        sheet.project_type
+                        sheet.project_type === "Hourly" ? <span className="bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20 px-2 py-1 rounded-full text-xs font-medium">{sheet.project_type}</span> : <span className="bg-blue-50 text-blue-700 ring-1 ring-blue-600/20 px-2 py-1 rounded-full text-xs font-medium">{sheet.project_type}</span>
                       )}
                     </td>
 
@@ -455,12 +461,12 @@ export const EmpSheetHistory = () => {
                           <span className="cursor-pointer">
                             {sheet.narration && sheet.narration.length > 7
                               ? sheet.narration.slice(0, 7) + "..."
-                              : sheet.narration || "N/A"}{" "}
+                              : sheet.narration}{" "}
                             {/* Default fallback */}
                           </span>
                           {sheet.narration && sheet.narration.length > 7 && (
                             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-auto max-w-[300px] bg-gray-100 text-black text-sm rounded p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 whitespace-pre-wrap break-words pointer-events-none invisible group-hover:visible">
-                              {sheet.narration}
+                              {sheet.narration || "NA"}
                             </div>
                           )}
                         </div>
@@ -469,6 +475,12 @@ export const EmpSheetHistory = () => {
 
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                       <div className="flex items-center justify-center space-x-2">
+                        {/* {sheet.status && sheet.status.length > 7 && (
+                            <span className={`${getStatusStyles(sheet.status)}`}>
+                              {getStatusIcon(sheet.status)}
+                              {sheet.status}
+                            </span>
+                          )} */}
                         <span className={`${getStatusStyles(sheet.status)}`}>
                           {getStatusIcon(sheet.status)}
                           {sheet.status}
@@ -492,7 +504,7 @@ export const EmpSheetHistory = () => {
                             </button>
                           </>
                         ) : (
-                          sheet.status.toLowerCase() === "rejected" && (
+                          sheet.status && sheet.status.toLowerCase() === "rejected" && (
                             <button
                               onClick={() => handleEditClick(index, sheet)}
                               className="edit-btn inline-flex items-center px-3 py-1.5 rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-150"
