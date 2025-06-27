@@ -12,9 +12,10 @@ return new class extends Migration
      public function up()
     {
         Schema::create('performa_sheets', function (Blueprint $table) {
-            $table->id(); // Auto-increment ID
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // User ID reference
-            $table->json('data'); // Store other fields as JSON
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->json('data')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

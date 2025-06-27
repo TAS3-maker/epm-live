@@ -25,8 +25,10 @@ public function store(Request $request)
         'contact_detail' => 'required|digits_between:10,15|unique:clients,contact_detail',
         'project_type'    => 'nullable|string|in:fixed,hourly',
         'communication'   => 'required|string',
-        'hire_on_id'      => 'nullable|string|max:255|unique:clients,hire_on_id',
-        'company_name'    => 'nullable|string|max:255|unique:clients,company_name',
+        // 'hire_on_id'      => 'nullable|string|max:255|unique:clients,hire_on_id',
+        'hire_on_id'      => 'nullable|string|max:255',
+        // 'company_name'    => 'nullable|string|max:255|unique:clients,company_name',
+        'company_name' => 'required_unless:client_type,Hired on Upwork|string|max:255|unique:clients,company_name',
         'company_address' => 'nullable|string|max:255',
     ];
 
@@ -36,6 +38,7 @@ public function store(Request $request)
         'hire_on_id.unique'      => 'This Hire-on ID is already associated with another client.',
         'company_name.unique'    => 'This company name is already used by another client.',
         'client_type.required'   => 'Client type is required.',
+        'company_name.required_unless' => 'Company name is required for non-Upwork clients.',
     ];
 
     $validator = Validator::make($request->all(), $rules, $messages);

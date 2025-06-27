@@ -15,6 +15,7 @@ class RolesTableSeeder extends Seeder
             'HR',
             'Billing Manager',
             'Project Manager',
+            'TL',
             'Team'
         ];
 

@@ -1,16 +1,18 @@
 import React from 'react';
 import { useProject } from "../../../context/ProjectContext";
+import { usePMContext } from "../../../context/PMContext";
 import { useClient } from "../../../context/ClientContext";
 import { StatCardHeader } from "../../../components/CardsDashboard";
 import { CheckCircle, XCircle, Pencil, Ban, Save, Edit, CalendarDays, Trash2, Eye, UserPlus, FolderSync, Briefcase } from "lucide-react";
 
 function DashboardCard07() {
-  const { projects, isLoading } = useProject();
+  // const { projects, isLoading } = useProject();
+  const { assignedProjects ,isLoading} = usePMContext();
   const { clients } = useClient(); // Assuming you have client data
 
-  console.log("dash projects", projects);
+  console.log("dash projects", assignedProjects);
   // Helper function to get client name by ID
-  const latestProjects = projects
+  const latestProjects = assignedProjects
   .slice() // Create a copy to avoid mutating original array
   .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by latest date
   .slice(0, 7);
@@ -21,7 +23,7 @@ function DashboardCard07() {
         <h2 className="font-semibold mb-2 text-2xl ">Recent Projects</h2>
         <hr />
       </header> */}
-      <StatCardHeader icon={Briefcase} title="Recent Projects" tooltip="Recent Projects." />
+      <StatCardHeader icon={Briefcase} title="Assigned projects" tooltip="Recent Projects." />
       <div className="p-3">
         {/* Table */}
         <div className="overflow-auto max-h-[50vh]">
@@ -51,7 +53,7 @@ function DashboardCard07() {
                   <tr key={project.id} className='odd:bg-gray-50 hover:bg-gray-100'>
                     <td className="p-2">
                       <div className="text-gray-800 ">
-                        {project.client?.company_name || "Unknown Client"}
+                        {project.client?.name || "Unknown Client"}
                       </div>
                     </td>
                     <td className="p-2">

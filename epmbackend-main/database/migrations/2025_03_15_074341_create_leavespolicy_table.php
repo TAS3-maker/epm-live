@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('leavespolicy', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // ✅ User who applied for leave
-            $table->date('start_date'); // ✅ Leave start date
-            $table->date('end_date');   // ✅ Leave end date
-			$table->string('leave_type');   // ✅ Reason for leave
-            $table->string('reason');   // ✅ Reason for leave
-            $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending'); // ✅ Leave status
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->integer('hours')->nullable();
+			$table->string('leave_type');
+            $table->string('reason');
+            $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
+            $table->unsignedBigInteger('approved_bymanager')->nullable();
             $table->timestamps();
         });
     }

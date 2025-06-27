@@ -11,7 +11,7 @@ class TeamController extends Controller
 {
     public function index()
     {
-        $teams = Team::with('users')->get();
+        $teams = Team::with('users')->latest()->get();
         return ApiResponse::success('Teams fetched successfully', TeamResource::collection($teams));
     }
 

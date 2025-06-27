@@ -46,10 +46,6 @@ export const Managesheets = () => {
     setEndDate(yesterday);
   }, []);
 
-
-
-
-
   useEffect(() => {
     fetchPerformanceDetails();
   }, []);
@@ -60,67 +56,70 @@ export const Managesheets = () => {
   };
 
   useEffect(() => {
-    if (!Array.isArray(performanceData) || performanceData.length === 0) {
-      console.warn("⚠️ Performance data is empty or invalid:", performanceData);
-      setFilteredData([]);
-      return;
-    }
+  if (!Array.isArray(performanceData) || performanceData.length === 0) {
+    console.warn("⚠️ Performance data is empty or invalid:", performanceData);
+    setFilteredData([]);
+    return;
+  }
 
-    let filtered = performanceData.flatMap(user =>
+  let filtered = performanceData.flatMap(user =>
+    user.sheets.map(sheet => ({
+      ...sheet,
+      user_name: user.user_name,
+    }))
+  );
+
+  // **Apply Date Filter**
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const startStr = start.toISOString().split("T")[0];
+    const endStr = end.toISOString().split("T")[0];
+
+    filtered = filtered.filter(sheet => {
+      if (!sheet.date) return false;
+
+      const sheetDateStr = sheet.date.split("T")[0];
+      return sheetDateStr >= startStr && sheetDateStr <= endStr;
+    });
+  }
+
+  // ✅ Trim searchTerm once
+  const trimmedSearchTerm = searchTerm?.trim() || "";
+
+  // **Apply Search Filter**
+  if (trimmedSearchTerm) {
+    filtered = filtered.filter(sheet =>
+      sheet.client_name.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) ||
+      sheet.project_name.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) ||
+      sheet.user_name.toLowerCase().includes(trimmedSearchTerm.toLowerCase())
+    );
+  }
+
+  console.log("Filtered Data:", filtered); // Debugging
+
+  setFilteredData(filtered);
+}, [searchTerm, startDate, endDate, performanceData]);
+
+useEffect(() => {
+  // ✅ Trim searchTerm here too
+  const trimmedSearchTerm = searchTerm?.trim() || "";
+
+  if (!startDate && !endDate && trimmedSearchTerm) {
+    const filtered = performanceData.flatMap((user) =>
       user.sheets.map(sheet => ({
         ...sheet,
         user_name: user.user_name,
       }))
+      .filter(sheet =>
+        sheet.project_name.toLowerCase().includes(trimmedSearchTerm.toLowerCase())
+      )
     );
-
-    // **Apply Date Filter**
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      // Convert dates to string format "YYYY-MM-DD"
-      const startStr = start.toISOString().split("T")[0];
-      const endStr = end.toISOString().split("T")[0];
-
-      filtered = filtered.filter(sheet => {
-        if (!sheet.date) return false;
-
-        const sheetDateStr = sheet.date.split("T")[0]; // Ensure date-only format
-        return sheetDateStr >= startStr && sheetDateStr <= endStr;
-      });
-    }
-
-
-    // **Apply Search Filter**
-    if (searchTerm) {
-      filtered = filtered.filter(sheet =>
-        sheet.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sheet.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sheet.user_name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    console.log("Filtered Data:", filtered); // Debugging
-
     setFilteredData(filtered);
-  }, [searchTerm, startDate, endDate, performanceData]);
+  }
+}, [searchTerm, startDate, endDate, performanceData]);
 
-
-
-  useEffect(() => {
-    if (!startDate && !endDate && searchTerm) {
-      const filtered = performanceData.flatMap((user) =>
-        user.sheets.map(sheet => ({
-          ...sheet,
-          user_name: user.user_name,
-        }))
-          .filter(sheet =>
-            sheet.project_name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-      );
-      setFilteredData(filtered);
-    }
-  }, [searchTerm, startDate, endDate, performanceData]);
 
 
   const handleStatusChange = async (sheet, newStatus) => {
@@ -234,13 +233,17 @@ export const Managesheets = () => {
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                max={endDate || undefined} 
               />
               <input
                 type="date"
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                min={startDate || undefined}  
               />
+
+              
               <ClearButton
                 onClick={() => {
                   setSearchTerm("");
@@ -351,71 +354,146 @@ export const Managesheets = () => {
                     <td className="px-4 py-4 text-center text-gray-700 whitespace-nowrap">{sheet.activity_type}</td>
                     <td className="px-4 py-4 text-center text-gray-700 whitespace-nowrap">{sheet.time}
                     </td>
-                    <td className="px-4 py-4 text-center text-gray-700 whitespace-nowrap">
-                      {sheet.narration
-                        ? sheet.narration
-                          .replace(/[,.\n]/g, " ")
-                          .split(/\s+/)
-                          .slice(0, 1)
-                          .join(" ") + "..."
-                        : ""}
+                    <td className="px-4 py-4 text-center text-gray-700 whitespace-nowrap hover:bg-white hover:text-black">
+                      <div 
+                        title={sheet.narration} 
+                        className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]"
+                      >
+                        {sheet.narration
+                          ? sheet.narration
+                              .replace(/[,.\n]/g, " ")
+                              .split(/\s+/)
+                              .slice(0, 1)
+                              .join(" ") + "..."
+                          : ""}
+                      </div>
                     </td>
+
+
                     <td className="px-6 py-4 flex items-center justify-center">
                       {editMode[sheet.id] ? (
                         <div className="flex items-center gap-4">
-                          <IconApproveButton
-                            onClick={() => {
-                              handleStatusChange(sheet, "approved");
-                              toggleEditMode(sheet.id);
-                            }}
-                          />
-                          <IconRejectButton
-                            onClick={() => {
-                              handleStatusChange(sheet, "rejected");
-                              toggleEditMode(sheet.id);
-                            }}
-                          />
-                          <IconCancelTaskButton
-                            onClick={() => {
-                              setEditMode((prev) => ({ ...prev, [sheet.id]: false }));
-                            }}
-                          />
+                          {/* Approve Button with tooltip */}
+                          <div className="relative group">
+                            <IconApproveButton
+                              onClick={() => {
+                                handleStatusChange(sheet, "approved");
+                                toggleEditMode(sheet.id);
+                              }}
+                            />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Approve
+                            </span>
+                          </div>
+
+
+                          {/* Reject Button with tooltip */}
+                          <div className="relative group">
+                            <IconRejectButton
+                              onClick={() => {
+                                handleStatusChange(sheet, "rejected");
+                                toggleEditMode(sheet.id);
+                              }}
+                            />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Reject
+                            </span>
+                          </div>
+
+                          {/* Cancel Button with tooltip */}
+                          <div className="relative group">
+                            <IconCancelTaskButton
+                              onClick={() => {
+                                setEditMode((prev) => ({ ...prev, [sheet.id]: false }));
+                              }}
+                            />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Cancel
+                            </span>
+                          </div>
                         </div>
+
                       ) : sheet.status?.toLowerCase() === "approved" ? (
                         <div className="flex items-center gap-3">
-                          <IconApproveButton />
+                          <div className="relative group">
+                            <IconApproveButton />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Approved
+                            </span>
+                          </div>
                           <button
                             onClick={() => toggleEditMode(sheet.id)}
-                            className="hover:scale-110 transition"
+                            className="relative group hover:scale-110 transition"
                           >
                             <Pencil className="text-blue-600 h-6 w-6 hover:text-blue-700" />
+
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Edit
+                            </span>
                           </button>
+
                         </div>
                       ) : sheet.status?.toLowerCase() === "rejected" ? (
                         <div className="flex items-center gap-3">
-                          <IconRejectButton />
+                          <div className="relative group">
+                              <IconRejectButton />
+                              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                              whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                              opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                Rejected
+                              </span>
+                            </div>
                           <button
                             onClick={() => toggleEditMode(sheet.id)}
-                            className="hover:scale-110 transition"
+                            className="relative group hover:scale-110 transition"
                           >
                             <Pencil className="text-blue-600 h-6 w-6 hover:text-blue-700" />
+
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Edit
+                            </span>
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-4">
-                          <IconApproveButton
-                            onClick={() => handleStatusChange(sheet, "approved")}
-                          />
-                          <IconRejectButton
-                            onClick={() => handleStatusChange(sheet, "rejected")}
-                          />
-                          <button
-                            onClick={() => toggleEditMode(sheet.id)}
-                            className="hover:scale-110 transition"
-                          >
-                            <Pencil className="text-blue-600 h-6 w-6 hover:text-blue-700" />
-                          </button>
-                        </div>
+  {/* Approve Button with tooltip */}
+  <div className="relative group">
+    <IconApproveButton
+      onClick={() => handleStatusChange(sheet, "approved")}
+    />
+    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                     whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                     opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+      Approve
+    </span>
+  </div>
+
+
+  {/* Reject Button with tooltip */}
+  <div className="relative group">
+    <IconRejectButton
+      onClick={() => handleStatusChange(sheet, "rejected")}
+    />
+    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                     whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                     opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+      Reject
+    </span>
+  </div>
+</div>
+
                       )}
                     </td>
                   </tr>

@@ -16,6 +16,7 @@ import DashboardCard09 from './dashboard copy/DashboardCard09';
 import { GraphProvider } from '../../context/GraphContext'; 
 import { ProjectProvider  } from '../../context/ProjectContext'
 import { ClientProvider  } from '../../context/ClientContext'
+import { PMProvider  } from '../../context/PMContext'
 
 const ProjectManagerDashboard = () => {
   useEffect(() => {
@@ -41,7 +42,9 @@ const ProjectManagerDashboard = () => {
 
               <ClientProvider >
                 <ProjectProvider>
+                  <PMProvider>
                   <DashboardCard07 />
+                  </PMProvider>
                 </ProjectProvider>
               </ClientProvider>
 

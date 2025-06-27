@@ -10,8 +10,15 @@ return new class extends Migration {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('client_type')->nullable();
+            $table->enum('project_type', ['fixed', 'hourly'])->default('fixed');
             $table->string('upwork_id')->nullable()->unique();
             $table->string('contact_detail')->nullable();
+            $table->string('hire_through')->nullable();
+            $table->string('hire_on_id')->nullable()->default(null);
+            $table->string('company_name')->nullable();
+            $table->string('company_address')->nullable();
+            $table->string('communication')->nullable();
             $table->timestamps();
         });
     }

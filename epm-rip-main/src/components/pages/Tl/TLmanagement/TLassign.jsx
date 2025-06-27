@@ -173,11 +173,11 @@ export const TLassign = () => {
                 )}
               </div>
 
-              {showMessage && (
+              {/* {showMessage && (
                 <div className="mt-4 p-3 rounded-md text-sm font-medium text-center bg-green-50 text-green-800 border border-green-300">
                   Project assigned successfully!
                 </div>
-              )}
+              )} */}
               <SubmitButton type="submit" />
             </form>
           </div>

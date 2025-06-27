@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { XMarkIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext";
@@ -97,11 +97,13 @@ export function Sidebar() {
     <aside className="bg-white shadow-lg fixed left-0 top-0 h-full w-72 z-10 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-gray-200 flex flex-col justify-between my-2.5 mx-1.5">
       <div>
         <div className="relative flex items-center py-4 px-4 text-center border-b border-gray-200">
+          <Link to="/profile" >
           <img
             className="rounded-3xl h-14 w-14 mx-2.5"
             src={userimage}
             alt=""
           />
+          </Link>
           <h2 className="text-lg font-semibold text-gray-700 capitalize">
             Welcome, {username}
           </h2>

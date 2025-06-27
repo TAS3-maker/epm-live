@@ -50,7 +50,7 @@ export const ProjectProvider = ({ children }) => {
         fetchProjects();
       } else {
         console.log( "Failed to add project.")
-        // setMessage(data.message || "Failed to add project.");
+        setMessage(data.message || "Failed to add project.");
         showAlert({ variant: "error", title: "Error", message: "Failed to add project." });
       }
     } catch (error) {

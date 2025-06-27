@@ -12,7 +12,7 @@ return new class extends Migration
     public function up() {
         Schema::create('tagsactivity', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // Store tag name
+            $table->string('name')->unique();
             $table->timestamps();
         });
     }

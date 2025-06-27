@@ -15,7 +15,7 @@ export function EditButton({ onClick }) {
 export function SaveButton({ onClick }) {
     return (
         <button onClick={onClick} className="save-btn">
-            <Save className="normal-btn-size" />
+            {/* <Save className="normal-btn-size" /> */}
             Save
         </button>
     );

@@ -11,13 +11,12 @@ export const Projects = () => {
   const { clients } = useClient();
   const [projectName, setProjectName] = useState("");
   const { activityTags, getActivityTags } = useActivity();
-  console.log("project adding tags", activityTags);
+  // console.log("project adding tags", activityTags);
   const [showMessage, setShowMessage] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
 
    useEffect(() => {
-      // Fetch activity tags on component mount
       getActivityTags();
     }, []);
 

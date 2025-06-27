@@ -75,22 +75,11 @@ const RoleBasedRoute = ({ element, allowedRoles }) => {
   return normalizedAllowedRoles.includes(userRole) ? element : <Navigate to="/" />;
 };
 
-
-
-
-
-
 const AppRoutes = () => {
   const [role, setRole] = useState(localStorage.getItem("user_name") || "");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation(); // Get current route
-
-
-
-
-
-
+  const location = useLocation();
 
   return (
     <AlertProvider>
@@ -105,6 +94,12 @@ const AppRoutes = () => {
             path="/admin/dashboard"
             element={<RoleBasedRoute element={<AdminDashboard />} allowedRoles={["admin"]} />}
           />
+
+          {/* <Route
+            path="/superadmin/profile"
+            element={<RoleBasedRoute element={<Profile />} allowedRoles={["superadmin"]} />}
+          /> */}
+          
           <Route
             path="/superadmin/dashboard"
             element={<RoleBasedRoute element={<SuperAdminDashboard />} allowedRoles={["superadmin"]} />}
@@ -189,6 +184,7 @@ const AppRoutes = () => {
             path="/superadmin/users/:id"
             element={<RoleBasedRoute element={<EmployeeDetail />} allowedRoles={["superadmin"]} />}
           />
+          
           <Route
             path="/billingmanager/projects-detail/:project_id"
             element={<RoleBasedRoute element={<ProjectDetail />} allowedRoles={["billingmanager"]} />}

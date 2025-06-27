@@ -4,10 +4,9 @@ import { X } from "lucide-react";
 import { SubmitButton } from "../../../AllButtons/AllButtons";
 
 export const Role = () => {
-  const { addRole, isLoading, message } = useRole();
+  const { addRole, isLoading } = useRole();
   const [roleName, setRoleName] = useState("");
   const [error, setError] = useState("");
-  const [showMessage, setShowMessage] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -26,7 +25,6 @@ export const Role = () => {
       setError(response.errorMessage); // show backend error under input
     } else {
       setRoleName("");
-      setShowMessage(true);
       setIsModalOpen(false);
     }
   };
@@ -37,7 +35,6 @@ export const Role = () => {
         onClick={() => {
           setIsModalOpen(true);
           setError("");
-          setShowMessage(false);
         }}
         className="add-items-btn"
       >
@@ -56,18 +53,6 @@ export const Role = () => {
 
             <h2 className="text-xl font-semibold text-gray-800">Enter Role Details</h2>
             <p className="text-sm text-gray-500 mt-1">Add a new role to the system</p>
-
-            {showMessage && message && (
-              <div
-                className={`mt-4 p-3 rounded-md text-sm font-medium text-center ${
-                  message.includes("successfully")
-                    ? "bg-green-50 text-green-800 border border-green-300"
-                    : "bg-red-50 text-red-800 border border-red-300"
-                }`}
-              >
-                {message}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div>

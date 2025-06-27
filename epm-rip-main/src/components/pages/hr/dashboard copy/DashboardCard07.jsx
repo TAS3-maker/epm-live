@@ -51,7 +51,7 @@ function DashboardCard07() {
                   <tr key={project.id} className='odd:bg-gray-50 hover:bg-gray-100'>
                     <td className="p-2">
                       <div className="text-gray-800 ">
-                        {project.client?.company_name || "Unknown Client"}
+                        {project.client?.name || "Unknown Client"}
                       </div>
                     </td>
                     <td className="p-2">

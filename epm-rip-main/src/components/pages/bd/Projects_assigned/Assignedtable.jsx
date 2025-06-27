@@ -3,7 +3,7 @@ import { useBDProjectsAssigned } from "../../../context/BDProjectsassigned";
 import { Loader2, Users, Building2, Clock, Search, BarChart } from "lucide-react";
 import { Assigned } from "./Assigned";
 import { SectionHeader } from '../../../components/SectionHeader';
-import {ModifyButton, SyncButton,} from "../../../AllButtons/AllButtons";
+import {ClearButton, ModifyButton, SyncButton,} from "../../../AllButtons/AllButtons";
 import { useAlert } from "../../../context/AlertContext";
 
 
@@ -180,6 +180,10 @@ export const Assignedtable = () => {
     fetchAssigned();
   }, []);
 
+   const handleClearSearch = () => {
+        setFilterOption("");
+    };
+
   const filteredProjects = assignedData?.filter((project) => {
     if (!searchTerm) return true;
     switch (filterOption) {
@@ -236,6 +240,7 @@ export const Assignedtable = () => {
             <option value="project_manager">Project Manager</option>
             <option value="deadline">Deadline</option>
           </select>
+          <ClearButton onClick={handleClearSearch} />
         </div>
       </div>
 

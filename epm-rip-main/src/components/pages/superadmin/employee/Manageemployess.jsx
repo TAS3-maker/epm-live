@@ -25,7 +25,7 @@ const EmployeeManagement = () => {
   const [googleSheetUrl, setGoogleSheetUrl] = useState("");
   const { importEmployees } = useImportEmployees();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [employeeToDelete, setEmployeeToDelete] = useState(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
 
   // --- NEW STATE FOR VALIDATION ERRORS ---
   const [validationErrors, setValidationErrors] = useState({});
@@ -44,11 +44,6 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
       console.log("Imported Data (Before adding to system):", data);
       importEmployees(data);
     });
-  };
-
-  const clearFilter = () => {
-    setSearchQuery("");
-    setFilterBy("name");
   };
 
   const handleGoogleSheetImport = () => {
@@ -183,7 +178,7 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
         team_id: "",
         role_id: "",
         profile_pic: null,
-        pm_id: 1, // Reset pm_id as well
+        pm_id: 1,
       });
       setValidationErrors({}); // Clear errors on successful submission
       closeModal();
@@ -207,7 +202,7 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
               generalErrorMessage = parsedError.message || "Validation failed.";
             }
           } else if (parsedError.message) {
-            generalErrorMessage = parsedError.message; // General message if no 'errors' object
+            generalErrorMessage = parsedError.message;
           }
         } catch (parseError) {
           // If err.message is not valid JSON (e.g., network error or other unexpected error)
@@ -241,7 +236,7 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setValidationErrors({}); // Clear errors when closing modal
+    setValidationErrors({});
   };
 
   const { teams, fetchTeams } = useTeam();
@@ -298,13 +293,15 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
             <option value="name">Name</option>
             <option value="email">Email</option>
             <option value="team">Department</option>
+            <option value="phone_num">Phone</option>
+            {/* <option value="role">Role</option> */}
           </select>
 
           <ClearButton onClick={() => setSearchQuery("")} />
           <div className="flex items-center gap-3 bg-white relative">
             <ImportButton onClick={() => setShowImportOptions(!showImportOptions)} />
             <div className="relative">
-              <ExportButton onClick={() => exportToExcel(employees, "employees.xlsx")} />
+              <ExportButton onClick={() => exportToExcel(employees.map(({ role_id,team_id, ...rest }) => rest), "employees.xlsx")} />
               {showImportOptions && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-30">
                   <div className="bg-white rounded-lg shadow-lg p-6 w-96 flex flex-col gap-4 animate-fadeIn">
@@ -402,7 +399,9 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
                 <td colSpan="7" className="px-4 py-3 text-center text-gray-500">No employees found</td>
               </tr>
             ) : (
-              filteredEmployees.map((employee) => (
+              filteredEmployees
+              .filter(employee => employee.roles !== 'Super Admin')
+              .map((employee) => (
                 <tr key={employee.id} className="border-b border-gray-300 hover:bg-gray-100">
                   <td className="px-4 py-3 text-gray-900">
                     <img
@@ -419,21 +418,36 @@ const [employeeToDelete, setEmployeeToDelete] = useState(null);
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800">{employee.roles || "N/A"}</span>
                   </td>
                   <td className="px-4 py-3 flex gap-2 items-center justify-center">
-                    <IconViewButton onClick={() => {
-                      if (employee.roles === "Team") { // Check if 'roles' is 'Team' to enable navigation
-                        handleViewEmployeeDetail(employee);
-                      } else {
-                        handleViewEmployee(employee); // For other roles, just show the modal
-                      }
-                    }} />
-                    <IconEditButton onClick={() => handleEditEmployee(employee)} />
+                     <div className="relative group">
+                        <IconViewButton onClick={() => { handleViewEmployeeDetail(employee);}} />
+                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                        whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                        opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                          View
+                        </span>
+                      </div>
+
+                      <div className="relative group">
+                        <IconEditButton onClick={() => handleEditEmployee(employee)} />
+                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                        whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                        opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                          Edit
+                        </span>
+                      </div>
                     {/* <IconDeleteButton onClick={() => handleDeleteEmployee(employee.id)} /> */}
-                    <IconDeleteButton
-                        onClick={() => {
-                          setEmployeeToDelete(employee.id);
+
+                    <div className="relative group">
+                        <IconDeleteButton onClick={() => { setEmployeeToDelete(employee.id);
                           setShowDeleteModal(true);
                         }}
                       />
+                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                        whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                        opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                          Delete
+                        </span>
+                      </div>
                   </td>
                 </tr>
               ))

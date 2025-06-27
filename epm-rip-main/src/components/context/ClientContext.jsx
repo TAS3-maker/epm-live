@@ -4,7 +4,7 @@ import { API_URL } from "../utils/ApiConfig";
 import { useAlert } from "./AlertContext";
 const ClientContext = createContext();
 export const ClientProvider = ({ children }) => {
-    const { showAlert } = useAlert();
+  const { showAlert } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [clients, setClients] = useState([]);

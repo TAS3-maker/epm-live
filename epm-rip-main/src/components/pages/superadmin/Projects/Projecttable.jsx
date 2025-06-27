@@ -3,6 +3,7 @@ import { useProject } from "../../../context/ProjectContext";
 import { useClient } from "../../../context/ClientContext";
 import { Edit, Save, Trash2, Loader2, Calendar, User, Briefcase, Clock, FileText, Target, BarChart, Search, CheckCircle, XCircle, Pencil, Ban } from "lucide-react";
 import { Projects } from './Projects';
+import { FaFileExcel, FaGoogle } from "react-icons/fa";
 import { SectionHeader } from '../../../components/SectionHeader';
 import { exportToExcel, importFromExcel, useImportEmployees, fetchGoogleSheetData } from "../../../components/excelUtils";
 import { EditButton, SaveButton, CancelButton, DeleteButton, ExportButton, ImportButton, ClearButton, IconApproveButton, IconRejectButton, IconCancelTaskButton, IconSaveButton, IconDeleteButton, IconEditButton, IconViewButton } from "../../../AllButtons/AllButtons";
@@ -18,6 +19,9 @@ export const Projecttable = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+    const [importType, setImportType] = useState(null); // Track selected import type
+    const [googleSheetUrl, setGoogleSheetUrl] = useState("");
+  
   const [deleteclient, setDeleteclient] = useState("");
   const [editid, setEditid] = useState(null);
   const [filterBy, setFilterBy] = useState("name"); // Default filter by name
@@ -91,7 +95,7 @@ export const Projecttable = () => {
     setIsUpdating(false);
     setEditProjectId(null);
   };
-
+console.log("project data",projects)
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-md max-h-screen overflow-y-auto">
@@ -129,8 +133,11 @@ export const Projecttable = () => {
           </select>
           <ClearButton onClick={() => clearFilter()} />
           <ImportButton onClick={() => setShowImportOptions(!showImportOptions)} />
-          <ExportButton onClick={() => exportToExcel(clients.data || [], "clients.xlsx")} />
-
+          <ExportButton onClick={() => {
+              const filteredProjects = (projects || []).map(({ role_id,team_id, ...rest }) => rest);
+              exportToExcel(filteredProjects, "projects.xlsx");
+            }}
+          />
         </div>
       </div>
 
@@ -279,14 +286,53 @@ export const Projecttable = () => {
                       <div className="flex items-center justify-center space-x-2">
                         {editProjectId === project.id ? (
                           <>
-                            <IconSaveButton onClick={handleSaveClick} disabled={isUpdating} />
-                            <IconCancelTaskButton onClick={() => setEditProjectId(null)} />
+                          <div className="relative group">
+                             <IconSaveButton onClick={handleSaveClick} disabled={isUpdating} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Save
+                            </span>
+                          </div>
+                            <div className="relative group">
+                           <IconCancelTaskButton onClick={() => setEditProjectId(null)} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Cancel
+                            </span>
+                          </div>
+                            
                           </>
                         ) : (
                           <>
+                          <div className="relative group">
                             <IconViewButton onClick={() => handleViewClick(project.id)} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              View
+                            </span>
+                          </div>
+                            
+                              <div className="relative group">
                             <IconEditButton onClick={() => handleEditClick(project)} />
-                            <IconDeleteButton onClick={() => { setEditid(project.id); setDeleteclient(true); }} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Edit
+                            </span>
+                          </div>
+                            
+                              <div className="relative group">
+                             <IconDeleteButton onClick={() => { setEditid(project.id); setDeleteclient(true); }} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Delete
+                            </span>
+                          </div>
+                           
                           </>
                         )}
 
@@ -341,6 +387,92 @@ export const Projecttable = () => {
           </div>
         </div>
       )}
+        {importType === "excel" && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
+                <div className="mt-3 p-4 border rounded-lg bg-white shadow-md flex flex-col gap-3">
+                  <p className="text-gray-700 font-medium">Upload an Excel File:</p>
+                  <input
+                    type="file"
+                    accept=".xlsx, .xls"
+                    //  onChange={handleImport}
+                    className="px-3 py-2 border rounded-md cursor-pointer"
+                  />
+                  {/* <button
+                    onClick={() => setImportType("")}
+                    className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                  >
+                    Cancel
+                  </button> */}
+                  <CancelButton onClick={() => setImportType("")} />
+                </div>
+      
+              </div>
+            )}
+      
+            {importType === "googleSheet" && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
+                <div className="mt-3 p-4 border rounded-lg bg-white shadow-md flex flex-col gap-3">
+                  <p className="text-gray-700 font-medium">Paste Google Sheet Link:</p>
+                  <input
+                    type="text"
+                    placeholder="Enter Google Sheet link"
+                    value={googleSheetUrl}
+                    onChange={(e) => setGoogleSheetUrl(e.target.value)}
+                    className="px-3 py-2 border rounded-md w-72 focus:outline-none"
+                  />
+                  <button
+                    //  onClick={handleGoogleSheetImport}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                  >
+                    Import from Google Sheets
+                  </button>
+                  {/* <button
+                    onClick={() => setImportType("")}
+                    className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                  >
+                    Cancel
+                  </button> */}
+                  <CancelButton onClick={() => setImportType("")} />
+                </div>
+              </div>
+            )}
+          {showImportOptions && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-30">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-96 flex flex-col gap-4 animate-fadeIn">
+                  <h3 className="text-lg font-semibold text-gray-800 text-center">Select Import Type</h3>
+      
+                  <button
+                    onClick={() => {
+                      setImportType("excel");
+                      setShowImportOptions(false);
+                    }}
+                    className="flex items-center justify-center gap-3 w-full px-4 py-3 text-gray-700 border rounded-md hover:bg-gray-100 transition"
+                  >
+                    <FaFileExcel className="text-green-600 text-xl" />
+                    <span>Import Excel</span>
+                  </button>
+      
+                  <button
+                    onClick={() => {
+                      setImportType("googleSheet");
+                      setShowImportOptions(false);
+                    }}
+                    className="flex items-center justify-center gap-3 w-full px-4 py-3 text-gray-700 border rounded-md hover:bg-gray-100 transition"
+                  >
+                    <FaGoogle className="text-blue-500 text-xl" />
+                    <span>Import Google Sheet</span>
+                  </button>
+      
+                  {/* <button
+                    onClick={() => setShowImportOptions(false)}
+                    className="mt-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                  >
+                    Cancel
+                  </button> */}
+                  <CancelButton onClick={() => setShowImportOptions(false)} />
+                </div>
+              </div>
+            )}
     </div>
   );
 };

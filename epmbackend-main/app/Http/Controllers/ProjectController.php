@@ -477,10 +477,17 @@ public function getProjectManagerTl()
     }
 
     // Fetch all employees in the same team, excluding the logged-in manager
+    // $employees = User::where('id', '!=', $user->id)
+    //     ->where('role_id', '=', 6)
+    //     ->select('id', 'name', 'email', 'profile_pic', 'role_id')
+    //     ->get();
+
     $employees = User::where('id', '!=', $user->id)
-        ->where('role_id', '=', 31)
-        ->select('id', 'name', 'email', 'profile_pic', 'role_id')
-        ->get();
+    ->whereHas('role', function ($query) {
+        $query->where('name', 'TL');
+    })
+    ->select('id', 'name', 'email', 'profile_pic', 'role_id')
+    ->get();
 
     return response()->json([
         'success' => true,

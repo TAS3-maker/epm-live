@@ -126,6 +126,8 @@ export const Clienttable = () => {
     }
   };
 
+
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-md max-h-screen overflow-y-auto">
       <SectionHeader icon={BarChart} title="Clients Management" subtitle="View, edit and manage Clients" />
@@ -346,13 +348,43 @@ export const Clienttable = () => {
                       <div className="flex items-center justify-center space-x-2">
                         {editingClient === client.id ? (
                           <>
+                          <div className="relative group">
                             <IconSaveButton onClick={handleSaveClick} />
-                            <IconCancelTaskButton onClick={() => setEditingClient(null)} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Save
+                            </span>
+                          </div>
+                            <div className="relative group">
+                             <IconCancelTaskButton onClick={() => setEditingClient(null)} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Cancel
+                            </span>
+                          </div>
                           </>
                         ) : (
                           <>
+                          <div className="relative group">
                             <IconEditButton onClick={() => handleEditClick(client)} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Edit
+                            </span>
+                          </div>
+                            
+                              <div className="relative group">
                             <IconDeleteButton onClick={() => { setEditid(client.id); setDeleteclient(true); }} />
+                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                              Delete
+                            </span>
+                          </div>
+                            
                           </>
                         )}
 
@@ -434,7 +466,10 @@ export const Clienttable = () => {
       {importType === "excel" && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
           <div className="mt-3 p-4 border rounded-lg bg-white shadow-md flex flex-col gap-3">
-            <p className="text-gray-700 font-medium">Upload an Excel File:</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-gray-700 font-medium">Upload an Excel File:</p>
+              <button className="font-bold " onClick={() => setImportType("")}>X</button>
+            </div>
             <input
               type="file"
               accept=".xlsx, .xls"
@@ -447,7 +482,8 @@ export const Clienttable = () => {
             >
               Cancel
             </button> */}
-            <CancelButton onClick={() => setImportType("")} />
+            <SaveButton onClick={() => setImportType("")}/>
+            {/* <CancelButton  /> */}
           </div>
 
         </div>
@@ -456,7 +492,10 @@ export const Clienttable = () => {
       {importType === "googleSheet" && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
           <div className="mt-3 p-4 border rounded-lg bg-white shadow-md flex flex-col gap-3">
-            <p className="text-gray-700 font-medium">Paste Google Sheet Link:</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-gray-700 font-medium">Paste Google Sheet Link:</p>
+              <button className="font-bold " onClick={() => setImportType("")}>X</button>
+            </div>
             <input
               type="text"
               placeholder="Enter Google Sheet link"
@@ -476,7 +515,6 @@ export const Clienttable = () => {
             >
               Cancel
             </button> */}
-            <CancelButton onClick={() => setImportType("")} />
           </div>
         </div>
       )}

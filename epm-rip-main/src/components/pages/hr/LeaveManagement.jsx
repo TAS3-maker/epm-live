@@ -98,7 +98,7 @@ export const LeaveManagement = () => {
                 <div className="flex gap-2">
                     <button
                         className={`p-2 border rounded-lg ${
-                            filterStatus === "All" ? "border-black bg-black text-white" : "border-black text-black hover:bg-black hover:text-white"
+                            filterStatus === "All" ? "border-blue-500 bg-blue-700 text-white" : "border-blue-500 text-black hover:bg-blue-700 hover:text-white"
                         }`}
                         onClick={() => setFilterStatus("All")}
                     >
@@ -187,18 +187,69 @@ export const LeaveManagement = () => {
                                         <td className="px-6 py-4 flex items-center justify-center text-center">
                                             {editMode[leave.id] ? (
                                                 <div className="flex items-center gap-4">
-                                                    <IconApproveButton onClick={() => handleStatusChange(leave.id, "Approved")} />
-                                                    <IconRejectButton onClick={() => handleStatusChange(leave.id, "Rejected")} />
+                                                    <div className="relative group">
+                                                            <IconApproveButton onClick={() => handleStatusChange(leave.id, "Approved")} />
+                                                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                                            Approved
+                                                            </span>
+                                                        </div>
+                                                    
+                                                        <div className="relative group">
+                                                           <IconRejectButton onClick={() => handleStatusChange(leave.id, "Rejected")} />
+                                                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                                            Reject
+                                                            </span>
+                                                        </div>
+                                                    
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-3">
                                                     {/* Display status icon based on the current status */}
-                                                    {leave.status === "Approved" && <CheckCircle className="text-green-500 h-7 w-7" />}
-                                                    {leave.status === "Rejected" && <XCircle className="text-red-500 h-7 w-7" />}
-                                                    {leave.status === "Pending" && <Clock className="text-yellow-500 h-7 w-7" />}
+                                                    {leave.status === "Approved" && 
+                                                    <div className="relative group">
+                                                        <CheckCircle className="text-green-500 h-7 w-7" />
+                                                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                                                        whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                                                        opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                                        Approved
+                                                        </span>
+                                                    </div>
+                                                    }
+                                                    {leave.status === "Rejected" && 
+                                                     <div className="relative group">
+                                                        <XCircle className="text-red-500 h-7 w-7" />
+                                                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                                                        whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                                                        opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                                        Rejected
+                                                        </span>
+                                                    </div>
+                                                    }
+                                                    {leave.status === "Pending" && 
+                                                    <div className="relative group">
+                                                        <Clock className="text-yellow-500 h-7 w-7" />
+                                                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                                                        whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                                                        opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                                        Pending
+                                                        </span>
+                                                    </div>
+                                                    }
                                                     
                                                     {/* Edit button to toggle edit mode */}
-                                                    <IconEditButton onClick={() => toggleEditMode(leave.id)} />
+                                                    
+                                                        <div className="relative group">
+                                                            <IconEditButton onClick={() => toggleEditMode(leave.id)} />
+                                                            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 
+                                                                            whitespace-nowrap bg-white text-black text-sm px-2 py-1 rounded 
+                                                                            opacity-0 group-hover:opacity-100 transition pointer-events-none shadow">
+                                                            Edit
+                                                            </span>
+                                                        </div>
                                                 </div>
                                             )}
                                         </td>

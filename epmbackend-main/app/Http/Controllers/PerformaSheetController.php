@@ -89,46 +89,55 @@ class PerformaSheetController extends Controller
     }
 
 	public function getUserPerformaSheets()
-    {
-        $user = auth()->user();
-        $sheets = PerformaSheet::with('user:id,name')
-            ->where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-        $structuredData = [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'sheets' => []
-        ];
-        foreach ($sheets as $sheet) {
-            $dataArray = json_decode($sheet->data, true);
-            if (!is_array($dataArray)) {
-                continue;
-            }
-            $projectId = $dataArray['project_id'] ?? null;
-            $project = $projectId ? Project::with('client:id,name')->find($projectId) : null;
-            $projectName = $project->project_name ?? 'No Project Found';
-            $clientName = $project->client->name ?? 'No Client Found';
-            $deadline = $project->deadline ?? 'No Deadline Set';
-            unset($dataArray['user_id'], $dataArray['user_name']);
-            $dataArray['id'] = $sheet->id;
-            $dataArray['project_name'] = $projectName;
-            $dataArray['client_name'] = $clientName;
-            $dataArray['deadline'] = $deadline;
-            $dataArray['status'] = $sheet->status ?? 'pending';
-            $structuredData['sheets'][] = $dataArray;
+{
+    $user = auth()->user();
+
+    $sheets = PerformaSheet::with('user:id,name')
+        ->where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $structuredData = [
+        'user_id' => $user->id,
+        'user_name' => $user->name,
+        'sheets' => []
+    ];
+
+    foreach ($sheets as $sheet) {
+        $dataArray = json_decode($sheet->data, true);
+        if (!is_array($dataArray)) {
+            continue;
         }
-        if (empty($structuredData['sheets'])) {
-            $structuredData['sheets'][] = [
-                "message" => "No Work Assigned"
-            ];
-        }
-        return response()->json([
-            'success' => true,
-            'message' => 'Performa Sheets fetched successfully',
-            'data' => $structuredData
-        ]);
+
+        $projectId = $dataArray['project_id'] ?? null;
+        $project = $projectId ? Project::with('client:id,name')->find($projectId) : null;
+        $projectName = $project->project_name ?? 'No Project Found';
+        $clientName = $project->client->name ?? 'No Client Found';
+        $deadline = $project->deadline ?? 'No Deadline Set';
+
+        unset($dataArray['user_id'], $dataArray['user_name']);
+
+        $dataArray['id'] = $sheet->id;
+        $dataArray['project_name'] = $projectName;
+        $dataArray['client_name'] = $clientName;
+        $dataArray['deadline'] = $deadline;
+        $dataArray['status'] = $sheet->status ?? 'pending';
+
+        $structuredData['sheets'][] = $dataArray;
     }
+
+    // If no sheets, return only user info
+    if (empty($structuredData['sheets'])) {
+        unset($structuredData['sheets']); // remove the 'sheets' key
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Performa Sheets fetched successfully',
+        'data' => $structuredData
+    ]);
+}
+
 
 	public function getAllPerformaSheets()
 	{

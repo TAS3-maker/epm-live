@@ -1,32 +1,116 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react"; // Import useMemo
 import { usePMContext } from "../../../context/PMContext";
-import { Loader2, Calendar, User, Search, XCircle, X } from "lucide-react"; // Import X for close button
+import { Loader2, Calendar, User, Search, XCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 
+// --- PaginationControls Component ---
+// This component should ideally be in its own file (e.g., components/PaginationControls.jsx)
+// for better reusability and separation of concerns.
+const PaginationControls = ({ totalPages, currentPage, handlePrevPage, handleNextPage, totalItems, itemsPerPage, setItemsPerPage }) => {
+    const showPaginationButtons = totalItems > 0 && itemsPerPage !== 'all';
+    const showItemsPerPageDropdown = totalItems > 0;
+
+    if (totalItems === 0 && itemsPerPage === 'all') return null;
+
+    return (
+        <div className="flex justify-between items-center p-4 border-t border-gray-200 bg-white sticky bottom-0 z-2">
+            {showItemsPerPageDropdown && (
+                <div className="flex items-center text-sm text-gray-700">
+                    Items per page:
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setItemsPerPage(e.target.value);
+                            // currentPage will be reset in the parent's useEffect
+                        }}
+                        className="ml-2 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value={6}>6</option> {/* Adjusted for card layout */}
+                        <option value={9}>9</option>
+                        <option value={12}>12</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            )}
+
+            {showPaginationButtons && (
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors duration-150 flex items-center`}
+                    >
+                        <ChevronLeft className="h-5 w-5 mr-1" /> Previous
+                    </button>
+                    <span className="text-sm font-medium text-gray-700">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                        onClick={handleNextPage}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors duration-150 flex items-center`}
+                    >
+                        Next <ChevronRight className="h-5 w-5 ml-1" />
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- Tableassigned Component ---
 export const Tableassigned = () => {
     const { employeeProjects, loading, fetchEmployeeProjects, deleteTeamLeader } = usePMContext();
     const [searchQuery, setSearchQuery] = useState("");
-    const [filteredData, setFilteredData] = useState([]);
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(6); // Default to 6 items per page for card layout
 
     // State for the confirmation modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalData, setModalData] = useState(null); // To store project and TL info for the modal
+    const [modalData, setModalData] = useState(null);
 
     useEffect(() => {
-        fetchEmployeeProjects(); // Fetch employee project details on mount
+        fetchEmployeeProjects();
     }, []);
 
-    console.log("these are employee projects", employeeProjects);
-
-    useEffect(() => {
-        if (Array.isArray(employeeProjects?.data?.projects)) {
-            const filtered = employeeProjects.data.projects.filter((project) =>
-                project.project_name?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredData(filtered);
-        } else {
-            setFilteredData([]); // Handle case where no data exists
+    // Memoize the filtered data first (based on search)
+    const filteredProjects = useMemo(() => {
+        if (!Array.isArray(employeeProjects?.data?.projects)) {
+            return [];
         }
+        return employeeProjects.data.projects.filter((project) =>
+            project.project_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
     }, [searchQuery, employeeProjects]);
+
+    // Calculate total pages based on filtered data
+    const totalPages = itemsPerPage === 'all' ? 1 : Math.ceil(filteredProjects.length / (Number(itemsPerPage) || 1));
+
+    // Memoize the paginated data
+    const currentItems = useMemo(() => {
+        if (itemsPerPage === 'all') {
+            return filteredProjects;
+        }
+        const indexOfLastItem = currentPage * Number(itemsPerPage);
+        const indexOfFirstItem = indexOfLastItem - Number(itemsPerPage);
+        return filteredProjects.slice(indexOfFirstItem, indexOfLastItem);
+    }, [filteredProjects, currentPage, itemsPerPage]);
+
+    // Reset current page to 1 when search query or itemsPerPage changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, itemsPerPage]);
+
+
+    // Pagination handlers
+    const handlePrevPage = () => {
+        setCurrentPage(prev => Math.max(1, prev - 1));
+    };
+
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(totalPages, prev + 1));
+    };
 
     // Function to open the modal
     const openDeleteModal = (projectId, teamLeaderId, teamLeaderName, projectName) => {
@@ -37,7 +121,7 @@ export const Tableassigned = () => {
     // Function to close the modal
     const closeDeleteModal = () => {
         setIsModalOpen(false);
-        setModalData(null); // Clear modal data when closed
+        setModalData(null);
     };
 
     // Handler for confirming deletion from the modal
@@ -47,9 +131,10 @@ export const Tableassigned = () => {
             const success = await deleteTeamLeader(projectId, teamLeaderId);
             if (success) {
                 console.log(`Team leader ${teamLeaderName} successfully removed from project ${projectName}!`);
-                // Consider adding a toast notification here (e.g., from react-hot-toast)
+                // Re-fetch projects to update the UI
+                fetchEmployeeProjects();
             }
-            closeDeleteModal(); // Close modal after action
+            closeDeleteModal();
         }
     };
 
@@ -71,17 +156,17 @@ export const Tableassigned = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center col-span-full">
+                    <div className="flex flex-col items-center justify-center col-span-full py-8">
                         <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
                         <p className="text-gray-600 text-lg font-medium mt-4">Loading assigned projects...</p>
                         <p className="text-gray-400">Please wait while we fetch the data</p>
                     </div>
-                ) : filteredData.length > 0 ? (
-                    filteredData.map((project) => (
+                ) : currentItems.length > 0 ? (
+                    currentItems.map((project) => (
                         <div key={project.id} className="bg-white rounded-lg shadow-lg p-5 border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-300">
                             <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                                 <h2>Project name :</h2>
-                                <button className="bg-blue-600 text-white px-2 py-1 rounded-lg  text-sm">{project.project_name}</button>
+                                <button className="bg-blue-600 text-white px-2 py-1 rounded-lg text-sm">{project.project_name}</button>
                             </h3>
                             <p className="text-gray-600 flex items-center gap-2 mt-2">
                                 <User className="h-5 w-5 text-blue-600" />
@@ -114,11 +199,24 @@ export const Tableassigned = () => {
                         </div>
                     ))
                 ) : (
-                    <div className="col-span-full text-center text-gray-500">No assigned projects found.</div>
+                    <div className="col-span-full text-center text-gray-500 py-8">
+                        {searchQuery ? "No matching projects found." : "No assigned projects to display."}
+                    </div>
                 )}
             </div>
 
-            {/* Confirmation Modal - Rendered directly within Tableassigned */}
+            {/* Pagination Controls */}
+            <PaginationControls
+                totalPages={totalPages}
+                currentPage={currentPage}
+                handlePrevPage={handlePrevPage}
+                handleNextPage={handleNextPage}
+                totalItems={filteredProjects.length} // Pass the length of the filtered (but not yet paginated) data
+                itemsPerPage={itemsPerPage}
+                setItemsPerPage={setItemsPerPage}
+            />
+
+            {/* Confirmation Modal */}
             {isModalOpen && modalData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
                     <div className="relative bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 sm:mx-0 transform transition-all duration-300 ease-out scale-100 opacity-100">
@@ -132,7 +230,7 @@ export const Tableassigned = () => {
 
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Confirm Removal</h3>
                         <p className="text-gray-700 mb-6">
-                            Are you sure you want to remove "{modalData.teamLeaderName}" from project "{modalData.projectName}"? This action cannot be undone.
+                            Are you sure you want to remove "<span className="font-semibold">{modalData.teamLeaderName}</span>" from project "<span className="font-semibold">{modalData.projectName}</span>"? This action cannot be undone.
                         </p>
 
                         <div className="flex justify-end gap-3">

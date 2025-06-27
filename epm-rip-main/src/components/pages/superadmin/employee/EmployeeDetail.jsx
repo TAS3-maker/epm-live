@@ -6,6 +6,10 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, T
 import { API_URL } from '../../../utils/ApiConfig';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { BarChart, User } from "lucide-react"; // Consider 'User' for profile icon if not BarChart
+import DashboardCard07 from '../dashboard copy/DashboardCard07';
+import { ClientProvider } from '../../../context/ClientContext';
+import { ProjectProvider } from '../../../context/ProjectContext';
+import SuperAdminDashboard from '../SuperAdminDashboard';
 
 // Register all necessary Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
@@ -313,7 +317,7 @@ const EmployeeDetail = () => {
           subtitle="Gain insights into employee profiles and project activity distributions."
         />
 
-        {/* Profile Card */}
+         {/* Profile Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 items-center border border-gray-100">
           <div className="flex flex-col items-center text-center space-y-4 col-span-1">
             <img
@@ -334,6 +338,9 @@ const EmployeeDetail = () => {
           </div>
         </div>
 
+
+        {employee.roles === 'Team' ? (
+          <>
         <div className="space-y-12">
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -421,6 +428,12 @@ const EmployeeDetail = () => {
             </div>
           </div>
         </div>
+          </>
+        ) : (
+          <>
+            <SuperAdminDashboard />
+          </>
+        )}
       </div>
     </>
   );

@@ -3,12 +3,14 @@ import { useEmployees } from "../context/EmployeeContext";
 /**
  * Function to export data to Excel
  */
+
 export const exportToExcel = (data, fileName) => {
   const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
   XLSX.writeFile(workbook, fileName);
 };
+
 /**
  * Validate Email Format
  */
@@ -72,9 +74,11 @@ export const importFromExcel = (file, importEmployees) => {
   };
   reader.readAsArrayBuffer(file);
 };
+
 /**
  * Function to fetch data from Google Sheets
  */
+
 export const fetchGoogleSheetData = async (url, importEmployees) => {
   const sheetId = extractSheetId(url);
   if (!sheetId) {
@@ -109,9 +113,9 @@ export const fetchGoogleSheetData = async (url, importEmployees) => {
           if (value === undefined || value === "") {
             mappedRow[col] = ""; 
           } else if (!isNaN(value) && col !== "phone_num" && col !== "emergency_phone_num") {
-            mappedRow[col] = Number(value); 
+            mappedRow[col] = Number(value);
           } else {
-            mappedRow[col] = value.trim(); 
+            mappedRow[col] = value.trim();
           }
         });
         mappedRow.password = "DefaultPass123";
@@ -119,7 +123,7 @@ export const fetchGoogleSheetData = async (url, importEmployees) => {
         return mappedRow;
       })
       .filter((emp) => emp.name && emp.phone_num && isValidEmail(emp.email));
-    console.log("Valid Data After Filtering:", validData); 
+    console.log("Valid Data After Filtering:", validData);
     if (validData.length === 0) {
       alert("Invalid Google Sheet data. Ensure valid email addresses.");
       return;
@@ -174,3 +178,7 @@ export const useImportEmployees = () => {
   };
   return { importEmployees };
 };
+
+export const useImportProjects = () => {
+  console.log("projects")
+}

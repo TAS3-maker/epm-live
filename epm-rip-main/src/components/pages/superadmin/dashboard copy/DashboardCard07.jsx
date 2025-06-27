@@ -6,13 +6,13 @@ import { CheckCircle, XCircle, Pencil, Ban, Save, Edit, CalendarDays, Trash2, Ey
 
 function DashboardCard07() {
   const { projects, isLoading } = useProject();
-  const { clients } = useClient(); // Assuming you have client data
+  const { clients } = useClient();
 
   console.log("dash projects", projects);
   // Helper function to get client name by ID
   const latestProjects = projects
-  .slice() // Create a copy to avoid mutating original array
-  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by latest date
+  .slice()
+  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   .slice(0, 7);
 
   return (
@@ -51,7 +51,7 @@ function DashboardCard07() {
                   <tr key={project.id} className='odd:bg-gray-50 hover:bg-gray-100'>
                     <td className="p-2">
                       <div className="text-gray-800 ">
-                        {project.client?.company_name || "Unknown Client"}
+                        {project.client?.name || "Unknown Client"}
                       </div>
                     </td>
                     <td className="p-2">

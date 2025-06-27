@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAlert } from "./AlertContext";
 const RoleContext = createContext(null);
 export function RoleProvider({ children }) {
+  
   const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(null);
@@ -19,6 +20,7 @@ export function RoleProvider({ children }) {
       }
       return false;
     };
+
   const addRole = async (name) => {
   setIsLoading(true);
   setMessage(null);

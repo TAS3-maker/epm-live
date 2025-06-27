@@ -86,7 +86,7 @@ const Login = () => {
                             {/* <a href="#" className="text-blue-500 text-sm">
                                 Forgot password?
                             </a> */}
-                            <Link to="/Updatepassword" className="text-[#e14a16] text-sm">
+                            <Link to="/updatepassword" className="text-[#e14a16] text-sm">
                               Forgot password?
                             </Link>
                         </div>

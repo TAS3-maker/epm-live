@@ -158,6 +158,7 @@ console.log("assigned", assignedProjects);
 
             // After successful deletion, re-fetch the projects to update the UI
             await fetchEmployeeProjects();
+            showAlert({ variant: "success", title: "Success", message: "Team leader removed successfully" });
             console.log(`Team leader ${teamLeaderId} deleted from project ${projectId}`);
             return true; // Indicate success
         } catch (err) {
